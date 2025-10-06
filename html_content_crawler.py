@@ -112,8 +112,8 @@ if __name__ == "__main__":
         if batch_num == 33:
             batch_num += 4
         if batch_num in completed_batches:
-            print(f"[⏩] Skipping batch {batch_num} — already processed.")
-            continue  # <--- this is the key line you were missing!
+            print(f"[Skipping batch] {batch_num} — already processed.")
+            continue 
 
         start = i * batch_size
         end = min(start + batch_size, len(urls))
