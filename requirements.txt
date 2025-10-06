@@ -3,4 +3,4 @@ numpy
 beautifulsoup4
 requests
 pandas
-playwright
+selenium

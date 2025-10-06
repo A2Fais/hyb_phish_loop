@@ -1,14 +1,15 @@
-import re
-from playwright.sync_api import Page, expect
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options as ChromeOptions
 
-def test_has_title(page: Page):
-    page.goto("https://playwright.dev/")
+def setup():
+    options = ChromeOptions()
+    options.headless = True
+    driver = webdriver.Chrome(options=options)
+    driver.get("https://www.google.com")
+    input("Press Enter to quit...") 
+    driver.quit()
+    return driver
 
-    expect(page).to_have_title(re.compile("Playwright"))
-
-def test_get_started_link(page: Page):
-    page.goto("https://playwright.dev/")
-
-    page.get_by_role("link", name="Get started").click()
-
-    expect(page.get_by_role("heading", name="Installation")).to_be_visible()
+if __name__ == "__main__":
+    setup()
