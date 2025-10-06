@@ -80,7 +80,7 @@ def process_batch(batch_urls, batch_index):
         for future in as_completed(future_to_url):
             url = future_to_url[future]
             try:
-                data = future.result(timeout=30)  # timeout per URL
+                data = future.result(timeout=30) 
                 if data:
                     results.append(data)
             except requests.exceptions.Timeout:
