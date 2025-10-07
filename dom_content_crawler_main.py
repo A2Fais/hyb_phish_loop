@@ -2,6 +2,9 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from dom_content_crawler_script import *
+import pandas as pd
+import os
+import time
 
 def create_driver(headless=True):
     options = Options()
@@ -59,7 +62,52 @@ def analyze_page(url):
 
 
 if __name__ == "__main__":
-    url = "https://www.wikipedia.org"
-    features = analyze_page(url)
-    for k, v in features.items():
-        print(f"{k}: {v}")
+    data_set = pd.read_csv("PhiUSIIL_Phishing_URL_Dataset.csv")
+    urls = data_set["URL"].head(20000).tolist()
+
+    batch_size = 500
+    total_batches = (len(urls) + batch_size - 1) // batch_size
+
+    completed_batches = {
+        int(f.split("_")[-1].split(".")[0])
+        for f in os.listdir(".")
+        if f.startswith("selenium_features_batch_") and f.endswith(".csv")
+    }
+
+    for i in range(total_batches):
+        batch_num = i + 1
+
+        if batch_num in completed_batches:
+            print(f"[Skipping batch] {batch_num} — already processed.")
+            continue
+
+        start = i * batch_size
+        end = min(start + batch_size, len(urls))
+        batch_urls = urls[start:end]
+
+        if not batch_urls:
+            break
+
+        print(f"\n[→] Processing Selenium batch {batch_num}/{total_batches} ({len(batch_urls)} URLs)...")
+
+        results = []
+        for url in batch_urls:
+            try:
+                features = analyze_page(url)
+                if features:
+                    results.append(features)
+            except Exception as e:
+                print(f"[Error processing {url}]: {e}")
+                continue
+
+        if results:
+            import csv
+            out_file = f"selenium_features_batch_{batch_num}.csv"
+            fieldnames = results[0].keys()
+            with open(out_file, "w", newline="", encoding="utf-8") as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(results)
+            print(f"[✔] Batch {batch_num}: Saved {len(results)} entries → {out_file}")
+
+        time.sleep(2)

@@ -11,7 +11,7 @@ def dom_max_depth(driver):
       function getDepth(node){
         if(!node || !node.children) return 1;
         let max = 0;
-        for(let i=0; i<node.children.length; i++){
+        for(let i = 0; i < node.children.length; i++){
           max = Math.max(max, getDepth(node.children[i]));
         }
         return 1 + max;
@@ -56,7 +56,7 @@ def dom_iframe_count(driver):
 
 def dom_iframe_max_nesting(driver):
     js = """
-    function getIframeDepth(win, depth){
+    function getIframeDepth(win, depth) {
         let iframes = win.document.getElementsByTagName('iframe');
         let maxDepth = depth;
         for (let iframe of iframes) {

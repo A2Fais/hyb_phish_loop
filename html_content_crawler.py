@@ -109,8 +109,8 @@ if __name__ == "__main__":
 
     for i in range(total_batches):
         batch_num = i + 1
-        if batch_num == 33:
-            batch_num += 4
+        # if batch_num == 33:
+        #     batch_num += 4
         if batch_num in completed_batches:
             print(f"[Skipping batch] {batch_num} — already processed.")
             continue 
