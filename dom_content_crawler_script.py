@@ -30,7 +30,9 @@ def dom_avg_branching_factor(driver):
     js = """
     let nodes = document.getElementsByTagName('*');
     let totalChildren = 0;
-    for (let n of nodes) totalChildren += n.children.length;
+    for (let n of nodes) {
+        totalChildren += n.children.length;
+    };
     return totalChildren / Math.max(nodes.length, 1);
     """
     return driver.execute_script(js)
@@ -40,7 +42,9 @@ def dom_max_children_per_node(driver):
     js = """
     let nodes = document.getElementsByTagName('*');
     let maxChildren = 0;
-    for (let n of nodes) maxChildren = Math.max(maxChildren, n.children.length);
+    for (let n of nodes) {
+        maxChildren = Math.max(maxChildren, n.children.length);
+    };
     return maxChildren;
     """
     return driver.execute_script(js)
@@ -55,7 +59,7 @@ def dom_iframe_max_nesting(driver):
     function getIframeDepth(win, depth){
         let iframes = win.document.getElementsByTagName('iframe');
         let maxDepth = depth;
-        for (let iframe of iframes){
+        for (let iframe of iframes) {
             try {
                 maxDepth = Math.max(maxDepth, getIframeDepth(iframe.contentWindow, depth + 1));
             } catch(e){}
@@ -121,8 +125,8 @@ def dom_hover_url_mismatch_count(driver):
     js = """
     let links = document.getElementsByTagName('a');
     let mismatches = 0;
-    for (let l of links){
-        if (l.href && l.textContent){
+    for (let l of links) {
+        if (l.href && l.textContent) {
             try {
                 let hrefDomain = new URL(l.href, location.href).hostname.replace('www.','');
                 let textDomain = (l.textContent.match(/([a-z0-9-]+\\.[a-z]+)/i)||[''])[0];
@@ -140,7 +144,7 @@ def dom_mixed_content_count(driver):
     if (location.protocol !== 'https:') return 0;
     let tags = ['img','script','iframe','link'];
     let count = 0;
-    for (let tag of tags){
+    for (let tag of tags) {
         let elems = document.getElementsByTagName(tag);
         for (let e of elems){
             if (e.src && e.src.startsWith('http:')) count++;
@@ -170,7 +174,7 @@ def dom_cross_origin_iframe_count(driver):
     js = """
     let iframes = document.getElementsByTagName('iframe');
     let count = 0;
-    for (let f of iframes){
+    for (let f of iframes) {
         try {
             if (f.contentWindow.location.hostname !== location.hostname) count++;
         } catch(e){ count++; }
@@ -184,7 +188,7 @@ def dom_hidden_element_ratio(driver):
     js = """
     let elems = document.getElementsByTagName('*');
     let hidden = 0;
-    for (let e of elems){
+    for (let e of elems) {
         let style = window.getComputedStyle(e);
         if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0')
             hidden++;
@@ -301,7 +305,7 @@ def dom_third_party_domains_unique(driver):
     let resources = Array.from(document.querySelectorAll('[src],[href]'));
     let currentDomain = location.hostname;
     let domains = new Set();
-    for (let r of resources){
+    for (let r of resources) {
         let url = r.src || r.href;
         if (url){
             try{
