@@ -5,6 +5,7 @@ from dom_content_crawler_script import *
 import pandas as pd
 import os
 import time
+import csv
 
 def create_driver(headless=True):
     options = Options()
@@ -101,7 +102,6 @@ if __name__ == "__main__":
                 continue
 
         if results:
-            import csv
             out_file = f"selenium_features_batch_{batch_num}.csv"
             fieldnames = results[0].keys()
             with open(out_file, "w", newline="", encoding="utf-8") as f:
