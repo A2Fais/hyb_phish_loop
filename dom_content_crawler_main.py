@@ -1,11 +1,23 @@
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from dom_content_crawler_script import *
 import pandas as pd
 import os
-import time
 import csv
+
+DATA_PATH = "./data_sets/PhiUSIIL_Phishing_URL_Dataset.csv"
+OUTPUT_DIR = "data_sets/dom_content_features"
+URL_RANGE = 20000
+BATCH_SIZE = 50
+MAX_WORKERS = 5  
+COOLDOWN = 2    
+
+data_set = pd.read_csv(DATA_PATH)
+urls = data_set["URL"].head(URL_RANGE).tolist()
+labels = data_set["label"].head(URL_RANGE).tolist()
 
 def create_driver(headless=True):
     options = Options()
@@ -21,11 +33,13 @@ def create_driver(headless=True):
     driver.set_page_load_timeout(30)
     return driver
 
-def analyze_page(url):
+def analyze_page(url, label):
     driver = create_driver()
     try:
         load_page(driver, url)
         results = {
+            "URL": url,
+            "label": label,
             "dom_max_depth": dom_max_depth(driver),
             "dom_total_nodes": dom_total_nodes(driver),
             "dom_avg_branching_factor": dom_avg_branching_factor(driver),
@@ -61,53 +75,72 @@ def analyze_page(url):
     finally:
         driver.quit()
 
+async def process_batch(batch_num, batch_urls, batch_labels):
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    file_name = f"DOM_CONTENT_BATCH_{batch_num}.csv"
+    path = os.path.join(OUTPUT_DIR, file_name)
 
-if __name__ == "__main__":
-    data_set = pd.read_csv("PhiUSIIL_Phishing_URL_Dataset.csv")
-    urls = data_set["URL"].head(20000).tolist()
+    if os.path.exists(path) and os.path.getsize(path) > 100:
+        print(f"[Skipping batch] {batch_num} — file already exists ({file_name})")
+        return
 
-    batch_size = 500
-    total_batches = (len(urls) + batch_size - 1) // batch_size
+    print(f"\n[→] Processing Selenium batch {batch_num} ({len(batch_urls)} URLs)...")
+    results = []
+
+    loop = asyncio.get_running_loop()
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+
+        tasks = [
+            loop.run_in_executor(executor, analyze_page, url, label)
+            for url, label in zip(batch_urls, batch_labels)
+        ]
+
+        for task in asyncio.as_completed(tasks):
+            try:
+                result = await task
+                if result:
+                    results.append(result)
+            except Exception as e:
+                print(f"[Error during processing]: {e}")
+
+    if results:
+        fieldnames = results[0].keys()
+        with open(path, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(results)
+        print(f"[✔] Batch {batch_num}: Saved {len(results)} entries → {file_name}")
+    else:
+        print(f"[!] Batch {batch_num} produced no results.")
+
+async def main():
+    total_batches = (len(urls) + BATCH_SIZE - 1) // BATCH_SIZE
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     completed_batches = {
         int(f.split("_")[-1].split(".")[0])
-        for f in os.listdir(".")
-        if f.startswith("selenium_features_batch_") and f.endswith(".csv")
+        for f in os.listdir(OUTPUT_DIR)
+        if f.startswith("DOM_CONTENT_BATCH_") and f.endswith(".csv")
     }
 
     for i in range(total_batches):
         batch_num = i + 1
-
         if batch_num in completed_batches:
             print(f"[Skipping batch] {batch_num} — already processed.")
             continue
 
-        start = i * batch_size
-        end = min(start + batch_size, len(urls))
+        start = i * BATCH_SIZE
+        end = min(start + BATCH_SIZE, len(urls))
         batch_urls = urls[start:end]
+        batch_labels = labels[start:end]
 
         if not batch_urls:
             break
 
-        print(f"\n[→] Processing Selenium batch {batch_num}/{total_batches} ({len(batch_urls)} URLs)...")
+        await process_batch(batch_num, batch_urls, batch_labels)
+        await asyncio.sleep(COOLDOWN)
 
-        results = []
-        for url in batch_urls:
-            try:
-                features = analyze_page(url)
-                if features:
-                    results.append(features)
-            except Exception as e:
-                print(f"[Error processing {url}]: {e}")
-                continue
+    print("\n✅ All batches completed or skipped successfully.")
 
-        if results:
-            out_file = f"selenium_features_batch_{batch_num}.csv"
-            fieldnames = results[0].keys()
-            with open(out_file, "w", newline="", encoding="utf-8") as f:
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(results)
-            print(f"[✔] Batch {batch_num}: Saved {len(results)} entries → {out_file}")
-
-        time.sleep(2)
+if __name__ == "__main__":
+    asyncio.run(main())
