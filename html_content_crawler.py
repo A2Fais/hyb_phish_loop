@@ -151,9 +151,9 @@ if __name__ == "__main__":
     total_batches = (len(urls) + batch_size - 1) // batch_size
 
     completed_batches = {
-        int(f.split("_")[-1].split(".")[0])
-        for f in os.listdir(".")
-        if f.startswith("HTML_CONTENT_BATCH_") and f.endswith(".csv")
+    int(f.split("_")[-1].split(".")[0])
+    for f in os.listdir(output_dir)
+    if f.startswith("HTML_CONTENT_BATCH_") and f.endswith(".csv")
     }
 
     for i in range(total_batches):
