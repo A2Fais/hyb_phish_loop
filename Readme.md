@@ -1,5 +1,5 @@
-# Multi-Agent Cost-Aware Phishing Defense
-This repository contains a multi-agent system designed to analyze and defend against phishing attacks. The system leverages HTML content crawling, feature extraction, and dataset analysis to identify and mitigate phishing threats.
+# Cost-Aware Phishing RL
+This repository contains a system designed to analyze and defend against phishing attacks. The system leverages HTML content crawling, feature extraction, and dataset analysis to identify and mitigate phishing threats.
 
 ### Features
 HTML Content Crawling: Extracts and processes HTML content from URLs.
