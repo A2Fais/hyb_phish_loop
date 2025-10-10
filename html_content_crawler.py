@@ -11,6 +11,7 @@ OUTPUT_DIR = "data_sets/html_content_features"
 
 data_set = pd.read_csv(DATA_PATH)
 urls = data_set["URL"].head(URL_RANGE).tolist()
+labels = data_set["label"].head(URL_RANGE).tolist()
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
@@ -24,7 +25,7 @@ def shannon_entropy(s):
     return round(-sum(p * math.log(p, 2) for p in prob), 3)
 
 
-def fetch_url(url):
+def fetch_url(url, label):
     try:
         res = requests.get(url, headers=headers, timeout=10, verify=False)
         html = res.text
@@ -33,7 +34,7 @@ def fetch_url(url):
         text = soup.get_text(separator=" ", strip=True).lower()
         total_words = len(text.split()) or 1
 
-        features = {"url": url}
+        features = {"url": url, "label": label}
 
         features["page_length_chars"] = len(html)
         features["text_to_html_ratio"] = round(len(text) / (len(html) + 1e-5), 3)
@@ -186,10 +187,13 @@ def fetch_url(url):
         return None
 
 
-def process_batch(batch_urls, batch_index):
+def process_batch(batch_urls, batch_labels, batch_index):
     results = []
     with ThreadPoolExecutor(max_workers=5) as executor:
-        future_to_url = {executor.submit(fetch_url, url): url for url in batch_urls}
+        future_to_url = {
+            executor.submit(fetch_url, url, label): url
+            for url, label in zip(batch_urls, batch_labels)
+        }
         for future in as_completed(future_to_url):
             data = future.result()
             if data:
@@ -207,7 +211,7 @@ def process_batch(batch_urls, batch_index):
 
 
 if __name__ == "__main__":
-    batch_size = 50
+    batch_size = 5
     total_batches = (len(urls) + batch_size - 1) // batch_size
 
     completed_batches = {
@@ -226,5 +230,5 @@ if __name__ == "__main__":
         print(
             f"\n[→] Processing batch {batch_num}/{total_batches} ({end-start} URLs)..."
         )
-        process_batch(urls[start:end], batch_num)
+        process_batch(urls[start:end], labels[start:end], batch_num)
         time.sleep(2)
