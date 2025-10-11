@@ -1,11 +1,16 @@
 import pandas as pd
-import glob
+from pathlib import Path
 
-files = sorted(glob.glob("html_features_batch_*.csv"))
+is_html_content = False
+dir = "./data_sets/html_content_features" if is_html_content else "./data_sets/dom_content_features"
+output_file = f"{dir}/HTML_CONTENT_FULL.csv"
 
-dfs = [pd.read_csv(f) for f in files]
-combined = pd.concat(dfs, ignore_index=True)
+file_name = "HTML_CONTENT_BATCH_*" if is_html_content else "DOM_CONTENT_BATCH_*"
+dir_content = Path(dir)
+files = list(dir_content.glob(file_name))
 
-combined.to_csv("html_features_all.csv", index=False)
+data_frame = [pd.read_csv(file) for file in files]
+combined = pd.concat(data_frame, ignore_index=True)
+combined.to_csv(output_file, index=False)
 
-print(f"[✔] Combined {len(files)} batch files → html_features_all.csv")
+print(f"[✔] Combined {len(files)} batch files → {output_file}")

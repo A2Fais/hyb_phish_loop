@@ -17,7 +17,6 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
 }
 
-
 def shannon_entropy(s):
     if not s:
         return 0
@@ -182,8 +181,11 @@ def fetch_url(url, label):
 
         return features
 
+    except requests.exceptions.Timeout:
+        print(f"Timeout occurred for URL: {url}")
+        return None
     except Exception as e:
-        print(f"[Error fetching {url}]: {e}")
+        print(f"Error fetching URL {url}: {e}")
         return None
 
 
@@ -211,7 +213,7 @@ def process_batch(batch_urls, batch_labels, batch_index):
 
 
 if __name__ == "__main__":
-    batch_size = 5
+    batch_size = 50
     total_batches = (len(urls) + batch_size - 1) // batch_size
 
     completed_batches = {
@@ -222,6 +224,7 @@ if __name__ == "__main__":
 
     for i in range(total_batches):
         batch_num = i + 1
+
         if batch_num in completed_batches:
             print(f"[Skipping batch] {batch_num} — already processed.")
             continue
