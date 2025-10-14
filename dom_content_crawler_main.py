@@ -10,14 +10,14 @@ import csv
 
 DATA_PATH = "./data_sets/PhiUSIIL_Phishing_URL_Dataset.csv"
 OUTPUT_DIR = "data_sets/dom_content_features"
-URL_RANGE = 20000
+URL_RANGE = 14000
 BATCH_SIZE = 50
 MAX_WORKERS = 5
 COOLDOWN = 2
 
 data_set = pd.read_csv(DATA_PATH)
-urls = data_set["URL"].head(URL_RANGE).tolist()
-labels = data_set["label"].head(URL_RANGE).tolist()
+urls = data_set[data_set["label"] == 0]["URL"].tail(URL_RANGE).tolist()
+labels = data_set[data_set["label"] == 0]["label"].tail(URL_RANGE).tolist()
 
 
 def create_driver(headless=True):
