@@ -6,3 +6,6 @@ pandas
 selenium
 tldextract
 aiohttp
+scikit-learn
+joblib
+xgboost
