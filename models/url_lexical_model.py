@@ -8,6 +8,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.dummy import DummyClassifier
 import joblib
 
+should_save_model = False
+
 data_frame = pd.read_csv('./data/PhiUSIIL_Phishing_URL_Dataset.csv')
 data_frame = data_frame.drop_duplicates()
 data_frame = data_frame.drop(columns=['FILENAME', 'URL', 'Domain', 'TLD', 'Title', 'URLSimilarityIndex'], errors='ignore')
@@ -58,8 +60,6 @@ scores = cross_val_score(pipeline, X, y, cv=5, scoring='f1', n_jobs=-1)
 print(f"Cross-validation F1 scores: {scores}\n")
 print(f"Mean F1: {np.mean(scores)}\n")
 
-try:
+if should_save_model:
     joblib.dump(pipeline, 'url_phishing_model.joblib')
     print("Model saved successfully!")
-except Exception as e:
-    print(f"Error saving model: {e}")
