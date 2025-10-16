@@ -8,7 +8,7 @@ from utils.evaluation_metrics import evaluate_model
 
 should_save_model = False
 
-data_frame = pd.read_csv('./data/PhiUSIIL_Phishing_URL_Dataset.csv')
+data_frame = pd.read_csv('./data/phiusiil.csv')
 data_frame = data_frame.drop_duplicates()
 data_frame = data_frame.drop(columns=['FILENAME', 'URL', 'Domain', 'TLD', 'Title', 'URLSimilarityIndex'], errors='ignore')
 
