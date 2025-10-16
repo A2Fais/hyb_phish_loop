@@ -40,7 +40,7 @@ y_pred = pipeline.predict(X_test)
 print(f"Accuracy: {metrics.accuracy_score(y_test, y_pred):.4f}\n")
 
 print("Classification Report:")
-print(metrics.classification_report(y_test, y_pred))
+print(metrics.classification_report(y_test, y_pred, target_names=["Benign", "Phishing"]))
 
 print(f"Duplicated Rows: {data_frame.duplicated().sum()}\n")
 
