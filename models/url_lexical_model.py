@@ -6,7 +6,6 @@ from sklearn.pipeline import make_pipeline
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.dummy import DummyClassifier
-from sklearn.model_selection import GroupKFold
 import joblib
 
 data_frame = pd.read_csv('./data/PhiUSIIL_Phishing_URL_Dataset.csv')
