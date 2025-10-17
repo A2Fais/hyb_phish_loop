@@ -27,5 +27,5 @@ def evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test,
     print(f"Mean F1: {np.mean(scores)}\n")
 
     if save_model:
-        joblib.dump(pipeline, f"models/trained/{model_name}")
+        joblib.dump(pipeline, f"models/trained/{model_name}.pkl")
         print("Model saved successfully!")
