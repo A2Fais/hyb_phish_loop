@@ -4,7 +4,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn import metrics
 from sklearn.dummy import DummyClassifier
 
-def evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, save_model=False):
+def evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, model_name, save_model=False):
     print(f"Accuracy: {metrics.accuracy_score(y_test, y_pred):.4f}\n")
 
     print("Classification Report:")
@@ -27,5 +27,5 @@ def evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test,
     print(f"Mean F1: {np.mean(scores)}\n")
 
     if save_model:
-        joblib.dump(pipeline, 'dom_content_model.joblib')
+        joblib.dump(pipeline, f"models/trained/{model_name}")
         print("Model saved successfully!")

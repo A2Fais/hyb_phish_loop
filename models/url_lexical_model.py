@@ -37,4 +37,4 @@ pipeline = make_pipeline(
 pipeline.fit(X_train, y_train)
 y_pred = pipeline.predict(X_test)
 
-evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, save_model=True)
+evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, model_name="url_lexical_model", save_model=True)

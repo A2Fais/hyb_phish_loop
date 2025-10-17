@@ -18,7 +18,6 @@ leaky = correlation[abs(correlation) > 0.8].index.tolist()
 if leaky:
     X = X.drop(columns=leaky, errors='ignore')
 
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 pipeline = make_pipeline(
@@ -29,4 +28,4 @@ pipeline = make_pipeline(
 pipeline.fit(X_train, y_train)
 y_pred = pipeline.predict(X_test)
 
-evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, save_model=True)
+evaluate_model(data_frame, pipeline, X, y, X_train, X_test, y_train, y_test, y_pred, model_name="html_content_model", save_model=True)
