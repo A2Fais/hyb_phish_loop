@@ -9,4 +9,4 @@ aiohttp
 scikit-learn
 joblib
 xgboost
-urllib
+lightgbm
